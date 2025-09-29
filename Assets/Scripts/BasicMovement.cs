@@ -1,34 +1,50 @@
+using System;
 using UnityEngine;
+using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 public class BasicMovement : MonoBehaviour
 {
-    public Rigidbody2D rb;
-    public Joystick joystick;
-    public float moveSpeed = 5f;
+    Rigidbody2D rb;
+    SpriteRenderer rend;
+    public GameObject joystick;
+    public GameObject handle;
+    public float moveSpeed = 1f;
 
-    void Start()
+	public float sens = 2.5f;
+
+	void Start()
     {
-        if (rb == null)
-            rb = GetComponent<Rigidbody2D>();
-
-        if (joystick == null)
-            joystick = FindObjectOfType<Joystick>(); // znajdzie pierwszy joystick w scenie
-    }
+		rb = GetComponent<Rigidbody2D>();
+		rend = GetComponent<SpriteRenderer>();
+	}
 
     void Update()
     {
-        if (rb == null || joystick == null)
-        {
-            Debug.LogError("Brakuje referencji! Upewnij się, że Player ma Rigidbody2D i joystick jest w scenie.");
-            return;
-        }
+		if (Input.GetMouseButtonDown(0))
+		{
+			joystick.SetActive(true);
 
-        Vector2 move = new Vector2(joystick.Horizontal(), joystick.Vertical());
-        rb.velocity = move * moveSpeed;
+			joystick.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		}
 
-        if (move.x < 0)
-            GetComponent<SpriteRenderer>().flipX = true;
-        else if (move.x > 0)
-            GetComponent<SpriteRenderer>().flipX = false;
-    }
+		if (Input.GetMouseButton(0))
+		{
+			handle.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+			Vector2 touchDelta = handle.transform.localPosition;
+			Vector2 touchDeltaClamped = new Vector2(Math.Clamp(touchDelta.x * sens, -1f, 1f), Math.Clamp(touchDelta.y * sens, -1f, 1f));
+
+			//transform.position = new Vector2(transform.position.x + touchDeltaClamped.x * moveSpeed * Time.deltaTime, transform.position.y);
+			rb.linearVelocityX = touchDeltaClamped.x * moveSpeed;
+
+			if (touchDelta.x < 0)
+				rend.flipX = true;
+			else
+				rend.flipX = false;
+		}
+
+		if (Input.GetMouseButtonUp(0))
+		{
+			joystick.SetActive(false);
+		}
+	}
 }
