@@ -8,11 +8,11 @@ public class BasicMovement : MonoBehaviour
 
     public Rigidbody2D rb;
     
-    public Vector2 touchStart = Vector2.zero;
-	public Vector2 touchCurrent = Vector2.zero;
+    Vector2 touchStart = Vector2.zero;
+	Vector2 touchCurrent = Vector2.zero;
 
-    public Vector2 touchDelta = Vector2.zero;
-    public float sens = 2.5f;
+    Vector2 touchDelta = Vector2.zero;
+	public float sens = 2.5f;
 
     bool flipped = false;
 
@@ -46,9 +46,9 @@ public class BasicMovement : MonoBehaviour
 			handle.transform.position = touchCurrent;
 
             touchDelta = touchCurrent - touchStart;
-            touchDelta = new Vector2(Math.Clamp(touchDelta.x * sens, -1f, 1f), Math.Clamp(touchDelta.y * sens, -1f, 1f));
+            Vector2 touchDeltaClamped = new Vector2(Math.Clamp(touchDelta.x * sens, -1f, 1f), Math.Clamp(touchDelta.y * sens, -1f, 1f));
 
-            transform.position = new Vector2(transform.position.x + touchDelta.x * Time.deltaTime, transform.position.y);
+            transform.position = new Vector2(transform.position.x + touchDeltaClamped.x * Time.deltaTime, transform.position.y);
 
             if (touchDelta.x < 0) 
             {
