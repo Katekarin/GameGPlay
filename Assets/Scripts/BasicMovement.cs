@@ -1,69 +1,34 @@
-using System;
 using UnityEngine;
 
 public class BasicMovement : MonoBehaviour
 {
-    public GameObject joystick;
-    public GameObject handle;
-
     public Rigidbody2D rb;
-    
-    Vector2 touchStart = Vector2.zero;
-	Vector2 touchCurrent = Vector2.zero;
+    public Joystick joystick;
+    public float moveSpeed = 5f;
 
-    Vector2 touchDelta = Vector2.zero;
-	public float sens = 2.5f;
-
-    bool flipped = false;
-
-	// Start is called once before the first execution of Update after the MonoBehaviour is created
-	void Start()
+    void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
+
+        if (joystick == null)
+            joystick = FindObjectOfType<Joystick>(); // znajdzie pierwszy joystick w scenie
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonDown(0))
+        if (rb == null || joystick == null)
         {
-			joystick.SetActive(true);
-			handle.SetActive(true);
-
-
-			// Debug.Log("Click");
-			touchStart = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Debug.Log(touchStart);
-
-            joystick.transform.localPosition = touchStart;
+            Debug.LogError("Brakuje referencji! Upewnij się, że Player ma Rigidbody2D i joystick jest w scenie.");
+            return;
         }
-        
-        if(Input.GetMouseButton(0)) 
-        {
-			// Debug.Log("Hold");
-			touchCurrent = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-			handle.transform.position = touchCurrent;
+        Vector2 move = new Vector2(joystick.Horizontal(), joystick.Vertical());
+        rb.velocity = move * moveSpeed;
 
-            touchDelta = touchCurrent - touchStart;
-            Vector2 touchDeltaClamped = new Vector2(Math.Clamp(touchDelta.x * sens, -1f, 1f), Math.Clamp(touchDelta.y * sens, -1f, 1f));
-
-            transform.position = new Vector2(transform.position.x + touchDeltaClamped.x * Time.deltaTime, transform.position.y);
-
-            if (touchDelta.x < 0) 
-            {
-                GetComponent<SpriteRenderer>().flipX = true;
-            }
-            else
-            {
-				GetComponent<SpriteRenderer>().flipX = false;
-			}
-		}
-
-        if (Input.GetMouseButtonUp(0)) {
-			
-            joystick.SetActive(false);
-			joystick.SetActive(false);
-		}
+        if (move.x < 0)
+            GetComponent<SpriteRenderer>().flipX = true;
+        else if (move.x > 0)
+            GetComponent<SpriteRenderer>().flipX = false;
     }
 }
