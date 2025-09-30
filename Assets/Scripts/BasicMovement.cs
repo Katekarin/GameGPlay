@@ -20,7 +20,7 @@ public class BasicMovement : MonoBehaviour
     {
         float moveInput = 0f;
 
-        // --- Sterowanie WSAD / strza≥kami ---
+        // --- Sterowanie WSAD / strza≈Çkami ---
         moveInput = Input.GetAxisRaw("Horizontal"); // -1 lewo, 1 prawo
 
         // --- Sterowanie joystickiem ---
@@ -37,8 +37,9 @@ public class BasicMovement : MonoBehaviour
             Vector2 touchDeltaClamped = new Vector2(Math.Clamp(touchDelta.x * sens, -1f, 1f), Math.Clamp(touchDelta.y * sens, -1f, 1f));
 
             moveInput = touchDeltaClamped.x; // joystick nadpisuje moveInput
+			//rb.linearVelocityX = touchDeltaClamped.x * moveSpeed;
 
-            if (touchDelta.x < 0)
+			if (touchDelta.x < 0)
                 rend.flipX = true;
             else if (touchDelta.x > 0)
                 rend.flipX = false;
@@ -50,6 +51,6 @@ public class BasicMovement : MonoBehaviour
         }
 
         // --- Przemieszczanie gracza ---
-        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
-    }
+		rb.linearVelocityX = moveInput * moveSpeed;
+	}
 }

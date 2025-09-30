@@ -60,7 +60,7 @@ public class PlayerJump : MonoBehaviour
         }
 
         // Naturalny lot z rosnącą grawitacją
-        if (rb.velocity.y < 0)
+        if (rb.linearVelocity.y < 0)
         {
             gravityTimer += Time.deltaTime;
             float gravityScale = Mathf.Lerp(1f, gravityMultiplier, gravityTimer / gravityIncreaseTime);
@@ -78,7 +78,7 @@ public class PlayerJump : MonoBehaviour
         float totalJumpForce = jumpForceBase + GetTotalModifierValue(jumpForceModifiers);
         float randomFactor = Random.Range(0.9f, 1.1f);
 
-        rb.velocity = new Vector2(rb.velocity.x, 0f); // zerowanie prędkości Y
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f); // zerowanie prędkości Y
         rb.AddForce(Vector2.up * totalJumpForce * randomFactor, ForceMode2D.Impulse);
 
         jumpsLeft--;
