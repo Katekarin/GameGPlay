@@ -5,7 +5,7 @@ public class Cam : MonoBehaviour
 {
     public Transform target;
     public float t = 0.2f;
-    public Vector2 offset;
+    public Vector3 offset;
 
     public bool lockY = false;
     
@@ -16,13 +16,14 @@ public class Cam : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
-        Vector2 pos = Vector2.Lerp(transform.position, target.position, t);
+        Vector3 pos = Vector3.Lerp(transform.position, target.position + offset, t * Time.deltaTime);
 
         if (lockY )
             pos.y = transform.position.y;
 
-        transform.position = pos + offset;
+        //transform.position = pos + offset;
+        transform.position = pos;
     }
 }
