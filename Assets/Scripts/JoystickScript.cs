@@ -16,20 +16,7 @@ public class Joystick : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointer
 
     void Update()
     {
-        // Obs³uga klawiatury
-        Vector2 keyInput = Vector2.zero;
 
-        keyInput.x = Input.GetAxisRaw("Horizontal"); // A/D lub strza³ki
-        keyInput.y = Input.GetAxisRaw("Vertical");   // W/S lub strza³ki
-
-        if (keyInput != Vector2.zero)
-        {
-            inputVector = keyInput.normalized; // zapewnia, ¿e d³ugoœæ nie > 1
-            handle.localPosition = new Vector3(
-                inputVector.x * (background.sizeDelta.x / 2),
-                inputVector.y * (background.sizeDelta.y / 2),
-                handle.localPosition.z);
-        }
     }
 
     public void OnDrag(PointerEventData eventData)

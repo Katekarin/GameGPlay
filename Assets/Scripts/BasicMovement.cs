@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 public class BasicMovement : MonoBehaviour
 {
@@ -9,42 +8,48 @@ public class BasicMovement : MonoBehaviour
     public GameObject joystick;
     public GameObject handle;
     public float moveSpeed = 1f;
+    public float sens = 2.5f;
 
-	public float sens = 2.5f;
-
-	void Start()
+    void Start()
     {
-		rb = GetComponent<Rigidbody2D>();
-		rend = GetComponent<SpriteRenderer>();
-	}
+        rb = GetComponent<Rigidbody2D>();
+        rend = GetComponent<SpriteRenderer>();
+    }
 
     void Update()
     {
-		if (Input.GetMouseButtonDown(0))
-		{
-			joystick.SetActive(true);
+        float moveInput = 0f;
 
-			joystick.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		}
+        // --- Sterowanie WSAD / strza³kami ---
+        moveInput = Input.GetAxisRaw("Horizontal"); // -1 lewo, 1 prawo
 
-		if (Input.GetMouseButton(0))
-		{
-			handle.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			Vector2 touchDelta = handle.transform.localPosition;
-			Vector2 touchDeltaClamped = new Vector2(Math.Clamp(touchDelta.x * sens, -1f, 1f), Math.Clamp(touchDelta.y * sens, -1f, 1f));
+        // --- Sterowanie joystickiem ---
+        if (Input.GetMouseButtonDown(0))
+        {
+            joystick.SetActive(true);
+            joystick.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        }
 
-			//transform.position = new Vector2(transform.position.x + touchDeltaClamped.x * moveSpeed * Time.deltaTime, transform.position.y);
-			rb.linearVelocityX = touchDeltaClamped.x * moveSpeed;
+        if (Input.GetMouseButton(0))
+        {
+            handle.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 touchDelta = handle.transform.localPosition;
+            Vector2 touchDeltaClamped = new Vector2(Math.Clamp(touchDelta.x * sens, -1f, 1f), Math.Clamp(touchDelta.y * sens, -1f, 1f));
 
-			if (touchDelta.x < 0)
-				rend.flipX = true;
-			else
-				rend.flipX = false;
-		}
+            moveInput = touchDeltaClamped.x; // joystick nadpisuje moveInput
 
-		if (Input.GetMouseButtonUp(0))
-		{
-			joystick.SetActive(false);
-		}
-	}
+            if (touchDelta.x < 0)
+                rend.flipX = true;
+            else if (touchDelta.x > 0)
+                rend.flipX = false;
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            joystick.SetActive(false);
+        }
+
+        // --- Przemieszczanie gracza ---
+        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+    }
 }

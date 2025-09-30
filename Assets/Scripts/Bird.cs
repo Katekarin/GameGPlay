@@ -3,45 +3,116 @@ using UnityEngine;
 public class BirdAI : MonoBehaviour
 {
     public Transform player;
-    public float floatSpeed = 2f;
-    public float floatAmount = 0.5f;
-    public float moveSpeed = 1f;
+    public float moveSpeed = 2f;
+    public float fleeSpeed = 4f;
     public float fleeDistance = 2f;
+    public float floatAmount = 0.3f;
+    public float floatSpeed = 2f;
 
-    private Vector3 startPos;
-    private float randomDirection;
+    private Transform targetGround;
+    private bool isLanding = false;
+    private bool isFleeing = false;
+    private float startY;
 
     void Start()
     {
-        startPos = transform.position;
-        randomDirection = Random.Range(-1f, 1f);
+        startY = transform.position.y;
     }
 
     void Update()
     {
+        if (player == null) return;
 
-        float newY = startPos.y + Mathf.Sin(Time.time * floatSpeed) * floatAmount;
+        float distToPlayer = Vector3.Distance(transform.position, player.position);
 
-
-        Vector3 move = Vector3.zero;
-        if (player != null)
+        if (isLanding)
         {
-            float distance = Vector3.Distance(transform.position, player.position);
-            if (distance < fleeDistance)
+            FlyToGround();
+        }
+        else if (isFleeing)
+        {
+            FleeFromPlayer();
+        }
+        else
+        {
+            if (distToPlayer < fleeDistance)
             {
-                Vector3 fleeDir = (transform.position - player.position).normalized;
-                move = new Vector3(fleeDir.x, 0, 0) * moveSpeed * Time.deltaTime;
+                isFleeing = true;
             }
             else
             {
-                move = new Vector3(randomDirection, 0, 0) * moveSpeed * Time.deltaTime;
+                if (targetGround == null)
+                {
+                    FindGround();
+                }
+                else
+                {
+                    isLanding = true;
+                }
+            }
+        }
+    }
 
-                if (Random.value < 0.01f)
-                    randomDirection = Random.Range(-1f, 1f);
+    void FindGround()
+    {
+        GameObject[] grounds = GameObject.FindGameObjectsWithTag("Ground");
+
+        Transform bestGround = null;
+        float bestDist = Mathf.Infinity;
+
+        foreach (GameObject g in grounds)
+        {
+            float distToPlayer = Vector3.Distance(player.position, g.transform.position);
+            if (distToPlayer < fleeDistance) continue;
+
+            float dist = Vector3.Distance(transform.position, g.transform.position);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                bestGround = g.transform;
             }
         }
 
-        transform.position += move;
+        targetGround = bestGround;
+    }
+
+    void FlyToGround()
+    {
+        if (targetGround == null) { isLanding = false; return; }
+
+        float distToPlayer = Vector3.Distance(transform.position, player.position);
+
+        if (distToPlayer < fleeDistance)
+        {
+            isLanding = false;
+            targetGround = null;
+            isFleeing = true;
+            return;
+        }
+
+        Vector3 targetPos = targetGround.position;
+        transform.position = Vector3.MoveTowards(transform.position, targetPos, moveSpeed * Time.deltaTime);
+
+        if (Vector3.Distance(transform.position, targetPos) < 0.05f)
+        {
+            isLanding = false;
+            targetGround = null;
+        }
+    }
+
+    void FleeFromPlayer()
+    {
+        Vector3 fleeDir = (transform.position - player.position).normalized + Vector3.up;
+        fleeDir.Normalize();
+
+        float newY = transform.position.y + Mathf.Sin(Time.time * floatSpeed) * floatAmount * Time.deltaTime;
+
+        transform.position += fleeDir * fleeSpeed * Time.deltaTime;
         transform.position = new Vector3(transform.position.x, newY, transform.position.z);
+
+        if (Vector3.Distance(transform.position, player.position) > fleeDistance * 2f)
+        {
+            isFleeing = false;
+        }
     }
 }
